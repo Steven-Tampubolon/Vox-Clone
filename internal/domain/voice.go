@@ -21,13 +21,13 @@ type VoiceRepository interface {
 	FindAll(ctx context.Context) ([]Voice, error)
 }
 
-// ElevenLabsService adalah kontrak untuk berkomunikasi dengan Cloud AI ElevenLabs.
-type ElevenLabsService interface {
+// VoiceAIService adalah kontrak untuk berkomunikasi dengan Mesin AI (XTTS/Cloud)
+type VoiceAIService interface {
 	CloneVoice(ctx context.Context, name string, fileReader io.Reader, fileName string) (string, error)
 	GenerateTTS(ctx context.Context, voiceID, text string) (io.ReadCloser, error)
 }
 
-// VoiceUsecase adalah kontrak inti yang mengatur alur bisnis utama (Orchestrator).
+// VoiceUsecase sekarang menggunakan interface baru yang sudah diganti namanya
 type VoiceUsecase interface {
 	RegisterNewVoice(ctx context.Context, name string, fileReader io.Reader, fileName string) (*Voice, error)
 	TextToSpeech(ctx context.Context, voiceID, text string) (io.ReadCloser, error)

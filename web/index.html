@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoxClone - Voice Cloning Dashboard</title>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-indigo-400 tracking-tight">VoxClone 🎙️</h1>
+            <p class="text-slate-400 mt-2">Aplikasi Kloning Suara Manusia Nyata Berbasis Clean Architecture & XTTS v2</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- COLUMN 1: CLONING VOICE -->
+            <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                <h2 class="text-xl font-bold text-indigo-300 mb-4 flex items-center gap-2"><span>1.</span> Kloning Suara Baru</h2>
+                
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Nama Pemilik Suara</label>
+                    <input type="text" id="voiceName" placeholder="Contoh: Budi, Susi, Suara Saya" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Pilih Metode Sampel Suara</label>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                        <div id="recordStatus" class="text-sm text-slate-400 mb-3 font-mono">Status: Mikrofon Siap</div>
+                        
+                        <!-- Opsi 1: Rekam Langsung -->
+                        <button id="btnRecord" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 font-semibold rounded-xl cursor-pointer shadow-md active:scale-95 transition flex items-center gap-2 mx-auto text-white mb-4">
+                            <span id="recordIcon">🔴</span> <span id="recordText">Mulai Rekam</span>
+                        </button>
+
+                        <div class="text-xs text-slate-500 font-semibold my-2">— ATAU —</div>
+
+                        <!-- Opsi 2: Upload File .wav -->
+                        <div class="mt-2">
+                            <label for="audioFile" class="block text-xs text-slate-400 mb-2">Unggah Berkas Audio (.wav saja)</label>
+                            <input type="file" id="audioFile" accept=".wav" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-950 file:text-indigo-300 hover:file:bg-indigo-900 file:cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="previewContainer" class="mb-5 hidden">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Pratinjau Sampel Audio (Akan Diunggah)</label>
+                    <audio id="audioPlayback" controls class="w-full"></audio>
+                </div>
+
+                <button id="btnSubmitClone" disabled class="w-full py-3 bg-slate-700 text-slate-400 font-bold rounded-xl cursor-not-allowed shadow-md transition">
+                    Proses Kloning Suara
+                </button>
+
+                <div id="cloneNotification" class="mt-4 p-4 bg-emerald-950/80 border border-emerald-500 text-emerald-300 rounded-xl hidden">
+                    <p class="font-bold">✓ Sukses!</p>
+                    <p class="text-sm mt-1">Suara berhasil dikloning secara lokal dan terdaftar di database MySQL.</p>
+                </div>
+            </section>
+
+            <!-- COLUMN 2: TEXT TO SPEECH -->
+            <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-indigo-300 mb-4 flex items-center gap-2"><span>2.</span> Gunakan Suara Kloning (TTS)</h2>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Pilih Suara Terdaftar</label>
+                        <select id="voiceSelect" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                            <option value="">-- Muat Ulang atau Pilih Suara --</option>
+                        </select>
+                        <button id="btnFetchVoices" class="mt-2 text-xs text-indigo-400 hover:underline cursor-pointer">🔄 Segarkan Daftar Suara</button>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Teks yang Ingin Diucapkan</label>
+                        <textarea id="ttsText" rows="4" placeholder="Ketik kalimat di sini, model XTTS v2 akan membacanya..." class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <button id="btnGenerateTTS" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl cursor-pointer shadow-md active:scale-95 transition">
+                        Konversi Teks ke Suara (TTS)
+                    </button>
+
+                    <div id="resultContainer" class="mt-6 p-4 bg-slate-900 border border-slate-700 rounded-xl hidden">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Hasil Audio Kloning</label>
+                        <audio id="ttsAudioResult" controls class="w-full mb-3"></audio>
+                        <a id="btnDownloadAudio" href="#" download="voxclone_result.wav" class="block text-center py-2 bg-slate-700 hover:bg-slate-600 text-sm font-semibold rounded-lg transition text-slate-200">
+                            📥 Unduh Hasil Audio (.wav)
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Script Logika -->
+    <script src="app.js"></script>
+</body>
+</html>

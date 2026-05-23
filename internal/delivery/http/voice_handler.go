@@ -91,5 +91,9 @@ func (h *VoiceHandler) GetAllVoices(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": voices})
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Daftar suara berhasil diambil!",
+		"data":    voices,
+	})
 }

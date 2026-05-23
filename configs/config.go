@@ -9,13 +9,14 @@ import (
 )
 
 type Config struct {
-	DBUser           string
-	DBPass           string
-	DBHost           string
-	DBPort           string
-	DBName           string
-	ElevenLabsAPIKey string
-	AppPort          string
+	DBUser        string
+	DBPass        string
+	DBHost        string
+	DBPort        string
+	DBName        string
+	XTTSServerURL string
+	XTTSUploadURL string
+	AppPort       string
 }
 
 // LoadConfig memuat semua environment variables dari file .env
@@ -30,13 +31,14 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		DBUser:           os.Getenv("DB_USER"),
-		DBPass:           os.Getenv("DB_PASS"),
-		DBHost:           os.Getenv("DB_HOST"),
-		DBPort:           os.Getenv("DB_PORT"),
-		DBName:           os.Getenv("DB_NAME"),
-		ElevenLabsAPIKey: os.Getenv("ELEVENLABS_API_KEY"),
-		AppPort:          appPort,
+		DBUser:        os.Getenv("DB_USER"),
+		DBPass:        os.Getenv("DB_PASS"),
+		DBHost:        os.Getenv("DB_HOST"),
+		DBPort:        os.Getenv("DB_PORT"),
+		DBName:        os.Getenv("DB_NAME"),
+		XTTSServerURL: os.Getenv("XTTS_SERVER_URL"),
+		XTTSUploadURL: os.Getenv("XTTS_UPLOAD_URL"),
+		AppPort:       appPort,
 	}
 }
 

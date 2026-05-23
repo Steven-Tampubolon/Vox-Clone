@@ -13,8 +13,8 @@ import (
 func main() {
 	// 1. Ambil Konfigurasi Sistem dari .env
 	cfg := configs.LoadConfig()
-	if cfg.ElevenLabsAPIKey == "" {
-		log.Fatalf("Error: ELEVENLABS_API_KEY wajib diisi di dalam file .env!")
+	if cfg.XTTSServerURL == "" {
+		log.Fatalf("Error: XTTS_SERVER_URL wajib diisi di dalam file .env!")
 	}
 
 	// 2. Inisialisasi Database & Jalankan AutoMigrate
@@ -24,16 +24,18 @@ func main() {
 	r := gin.Default()
 	r.Use(http.CORSMiddleware())
 
-	// 4. Dependency Injection (Perakitan Komponen Arsitektur)
+	// 4. Dependency Injection
 	voiceRepo := repository.NewVoiceDBRepository(db)
-	elevenService := repository.NewElevenLabsService(cfg.ElevenLabsAPIKey)
-	voiceUsecase := usecase.NewVoiceUsecase(voiceRepo, elevenService)
+
+	// Menyuntikkan XTTSServerURL ke service AI
+	xttsService := repository.NewXTTSService(cfg.XTTSServerURL, cfg.XTTSUploadURL)
+	voiceUsecase := usecase.NewVoiceUsecase(voiceRepo, xttsService)
 
 	// Daftarkan Handler HTTP
 	http.NewVoiceHandler(r, voiceUsecase)
 
 	// 5. Hidupkan Mesin Aplikasi
-	log.Printf("[VoxClone] Backend sukses berjalan di port :%s\n", cfg.AppPort)
+	log.Printf("[VoxClone] Backend XTTS v2 sukses berjalan di port :%s\n", cfg.AppPort)
 	if err := r.Run(":" + cfg.AppPort); err != nil {
 		log.Fatalf("Server gagal menyala: %v", err)
 	}

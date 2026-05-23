@@ -7,32 +7,29 @@ import (
 )
 
 type voiceUsecase struct {
-	repo       domain.VoiceRepository
-	elevenLabs domain.ElevenLabsService
+	repo    domain.VoiceRepository
+	voiceAI domain.VoiceAIService // Nama variabel diubah agar lebih umum
 }
 
-// NewVoiceUsecase adalah constructor untuk menginisialisasi business logic layer
-func NewVoiceUsecase(r domain.VoiceRepository, e domain.ElevenLabsService) domain.VoiceUsecase {
+func NewVoiceUsecase(r domain.VoiceRepository, ai domain.VoiceAIService) domain.VoiceUsecase {
 	return &voiceUsecase{
-		repo:       r,
-		elevenLabs: e,
+		repo:    r,
+		voiceAI: ai,
 	}
 }
 
 func (u *voiceUsecase) RegisterNewVoice(ctx context.Context, name string, fileReader io.Reader, fileName string) (*domain.Voice, error) {
-	// 1. Kirim data rekaman/file audio ke Cloud ElevenLabs untuk di-clone
-	voiceID, err := u.elevenLabs.CloneVoice(ctx, name, fileReader, fileName)
+	// Memanggil service AI yang baru
+	voiceID, err := u.voiceAI.CloneVoice(ctx, name, fileReader, fileName)
 	if err != nil {
 		return nil, err
 	}
 
-	// 2. Petakan hasil ke dalam entitas domain Voice
 	voice := &domain.Voice{
 		Name:    name,
 		VoiceID: voiceID,
 	}
 
-	// 3. Simpan data entitas tersebut ke dalam database via GORM Repository
 	if err := u.repo.Save(ctx, voice); err != nil {
 		return nil, err
 	}
@@ -41,11 +38,9 @@ func (u *voiceUsecase) RegisterNewVoice(ctx context.Context, name string, fileRe
 }
 
 func (u *voiceUsecase) TextToSpeech(ctx context.Context, voiceID, text string) (io.ReadCloser, error) {
-	// Panggil layanan ElevenLabs untuk melakukan konversi Teks menjadi Aliran Audio (.mp3)
-	return u.elevenLabs.GenerateTTS(ctx, voiceID, text)
+	return u.voiceAI.GenerateTTS(ctx, voiceID, text)
 }
 
 func (u *voiceUsecase) GetAllVoices(ctx context.Context) ([]domain.Voice, error) {
-	// Ambil semua daftar suara yang sudah pernah dikloning dari database
 	return u.repo.FindAll(ctx)
 }
